@@ -15,3 +15,5 @@ for folder in os.listdir(directory):
             copyfile(FileLoc, (str(repoDir) + '\\' + str(folder) + '-' + str(counter) + ".py"))
             counter += 1
             print(str(file) + " relocated.")
+
+input("Press any key to close.")
