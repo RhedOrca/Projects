@@ -1,6 +1,20 @@
 from random import randint
 alphabet = "abcdefghijklmnopqrstuvwxyz"
-library = ["at", "by", "cat", "as", "ex", "but", "be", "no", "um", "is", "me", "si", "or", "im", "to", "go", "am", "ba", "be", "id", "if", "in", "is", "gi"]
+
+dictFile = open("dict.txt", "r")
+dictFileContents = dictFile.read()
+dictionary = []
+attempts = []
+word = ''
+for letter in dictFileContents:  # Loads dictionary into program
+    if letter != '\n':
+        word += letter
+    else:
+        if len(word) < 2:  # omits single letter words. Where's the fun in that?
+            word = ''
+            continue
+        dictionary.append(word)
+        word = ''
 
 def randletter():
     x = alphabet[randint(0, 25)]
@@ -12,61 +26,88 @@ def gridbuilder():
     l2 = []
     l3 = []
     l4 = []
-    LoL = [l1, l2, l3, l4]
+    grid = [l1, l2, l3, l4]
 
-    for innerlist in LoL:
+    for row in grid:
         for i in range(0, 4):
-            innerlist.append(randletter())
+            row.append(randletter())
 
-    print(str(LoL))
-    for innerlist in LoL:
-        print(str(innerlist))
-
-    navigablelist = []
-    for innerlist in LoL:
-        for item in innerlist:
-            navigablelist.append(item)
-
-    return navigablelist
+    return grid
 
 
-def wordcheck(attempt, library, index, navigablelist, nogo):
-    for word in library:
-        if str(attempt) == word[:len(attempt)]:
-            nogo.append(index)
-            print("Comparing " + str(attempt) + " to " + str(word) + ".")
-            if str(attempt) == word:
-                print ("!!!Solution found: " + str(attempt) + "!!!")
-                return True
-            else:
-                up = index - 4
-                down = index + 4
-                left = index - 1
-                right = index + 1
-                if up >= 0 and up < len(navigablelist) and wordcheck(attempt + navigablelist[up], library, up, navigablelist, nogo):
-                    return True
-                if down >= 0 and down < len(navigablelist) and wordcheck(attempt + navigablelist[down], library, down, navigablelist, nogo):
-                    return True
-                if left >= 0 and left < len(navigablelist) and wordcheck(attempt + navigablelist[left], library, left, navigablelist, nogo):
-                    return True
-                if right >= 0 and right < len(navigablelist) and wordcheck(attempt + navigablelist[right], library, right, navigablelist, nogo):
-                    return True
+grid = gridbuilder()
+
+for row in grid:
+    print(str(row))
+
+def adjacentList(coord):
+    y = coord[0]
+    x = coord[1]
+    up = 0
+    down = 0
+    left = 0
+    right = 0
+    if x != 0:
+        up = grid[x-1][y]
+    if x != 3:
+        down = grid[x+1][y]
+    if y != 0:
+        left = grid[x][y-1]
+    if y != 3:
+        right = grid[x][y+1]
+    output = [up, down, left, right]
+
+    return output
+
+def checker(candidate):
+    for word in dictionary:
+        if candidate in word:
+            return True
     return False
 
+def boggleSolver(currString, coord):
+    if currString in dictionary:
+        attempts.append(currString)
+        return
+    x = coord[1]
+    y = coord[0]
+    candidates = []
+    adjacents = adjacentList(coord)
+    if [y, x-1] in usedCoords:
+        adjacents[0] = 0
+    if [y, x+1] in usedCoords:
+        adjacents[1] = 0
+    if [y-1, x] in usedCoords:
+        adjacents[2] = 0
+    if [y+1, x-1] in usedCoords:
+        adjacents [3] = 0
+    for adjacent in adjacents:
+        if adjacent == 0:
+            continue
+        else:
+            candidates.append(currString + adjacent)
+    for candidate in candidates:
+        if checker(candidate):
+            boggleSolver(candidate, coord)
+        else:
+            currString = ''
+            break
+    return
 
-def bogglesolver():
-    navigablelist = gridbuilder()
-    print (str(navigablelist))
-    i = 0
-    for letter in navigablelist:
-        nogo = [i]
-        i += 1
-        if wordcheck(letter, library, 0, navigablelist, nogo):
-            print("Solution found. Have a nice day.")
 
 
-#def nextLetterCheck(nogo, attempt):
-    #give list of non-viable moves, run wordcheck on each move, if successful call nextLetterCheck on that position
+usedCoords = []
+for x in range(0, 4):
+    for y in range(0, 4):
+        usedCoords = []
+        boggleSolver(grid[y][x], [x, y])
 
+solutions = []
+for attempt in attempts:
+    if attempt != None:
+        solutions.append(attempt)
 
-bogglesolver()
+if solutions:
+    input("\nSolutions found:\n" + str(solutions))
+else:
+    input("No solutions found.")

@@ -28,4 +28,4 @@ for num1 in histo: #starts primary cycle
         maxArea = max(currMax, maxArea)
         print("maxArea = " + str(maxArea))
 
-print(maxArea)
+input(maxArea)
