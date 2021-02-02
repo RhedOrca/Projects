@@ -1,5 +1,4 @@
 from random import randint
-alphabet = "abcdefghijklmnopqrstuvwxyz"
 
 dictFile = open("dict.txt", "r")
 dictFileContents = dictFile.read()
@@ -16,12 +15,13 @@ for letter in dictFileContents:  # Loads dictionary into program
         dictionary.append(word)
         word = ''
 
+alphabet = "abcdefghijklmnopqrstuvwxyz"
 def randletter():
     x = alphabet[randint(0, 25)]
     return x
 
 
-def gridbuilder():
+def gridbuilder():  # builds a random game board
     l1 = []
     l2 = []
     l3 = []
@@ -40,67 +40,73 @@ grid = gridbuilder()
 for row in grid:
     print(str(row))
 
-def adjacentList(coord):
+def adjacentList(coord):  # produces a list of adjacent letters. Fills invalid spaces with '0'.
     y = coord[0]
     x = coord[1]
     up = 0
     down = 0
     left = 0
     right = 0
-    if x != 0:
-        up = grid[x-1][y]
-    if x != 3:
-        down = grid[x+1][y]
     if y != 0:
-        left = grid[x][y-1]
+        up = grid[y-1][x]
     if y != 3:
-        right = grid[x][y+1]
+        down = grid[y+1][x]
+    if x != 0:
+        left = grid[y][x-1]
+    if x != 3:
+        right = grid[y][x+1]
     output = [up, down, left, right]
-
     return output
 
-def checker(candidate):
+def checker(candidate):  # Checks if a given move will produce a part/whole of a word from the dictionary.
     for word in dictionary:
-        if candidate in word:
+        if word.startswith(candidate):
             return True
     return False
 
 def boggleSolver(currString, coord):
+    usedCoords.append(coord)
     if currString in dictionary:
         attempts.append(currString)
-        return
     x = coord[1]
     y = coord[0]
-    candidates = []
     adjacents = adjacentList(coord)
-    if [y, x-1] in usedCoords:
-        adjacents[0] = 0
-    if [y, x+1] in usedCoords:
-        adjacents[1] = 0
     if [y-1, x] in usedCoords:
+        adjacents[0] = 0
+    if [y+1, x] in usedCoords:
+        adjacents[1] = 0
+    if [y, x-1] in usedCoords:
         adjacents[2] = 0
-    if [y+1, x-1] in usedCoords:
-        adjacents [3] = 0
-    for adjacent in adjacents:
-        if adjacent == 0:
-            continue
-        else:
-            candidates.append(currString + adjacent)
-    for candidate in candidates:
-        if checker(candidate):
-            boggleSolver(candidate, coord)
-        else:
-            currString = ''
-            break
+    if [y, x+1] in usedCoords:
+        adjacents[3] = 0
+    for i in range(0, 3):
+        if adjacents[i] != 0:
+            newCoords = []
+            if i == 0:
+                newCoords.append(y - 1)
+                newCoords.append(x)
+            if i == 1:
+                newCoords.append(y + 1)
+                newCoords.append(x)
+            if i == 2:
+                newCoords.append(y)
+                newCoords.append(x - 1)
+            if i == 3:
+                newCoords.append(y)
+                newCoords.append(x + 1)
+            newString = currString + adjacents[i]
+            if checker(newString):
+                boggleSolver(newString, newCoords)  # If checker, generate new coords to give bogglesolver.
+            else:
+                usedCoords.pop()
+                return
     return
 
 
-
-usedCoords = []
-for x in range(0, 4):
-    for y in range(0, 4):
+for y in range(0, 4):
+    for x in range(0, 4):
         usedCoords = []
-        boggleSolver(grid[y][x], [x, y])
+        boggleSolver(grid[y][x], [y, x])
 
 solutions = []
 for attempt in attempts:
