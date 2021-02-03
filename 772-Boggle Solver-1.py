@@ -61,10 +61,12 @@ def adjacentList(coord):  # produces a list of adjacent letters. Fills invalid s
 def checker(candidate):  # Checks if a given move will produce a part/whole of a word from the dictionary.
     for word in dictionary:
         if word.startswith(candidate):
+            print(str(word).swapcase() + " contains " + str(candidate).swapcase())
             return True
     return False
 
 def boggleSolver(currString, coord):
+    print("Testing with (" + currString + ") at " + str(coord))
     usedCoords.append(coord)
     if currString in dictionary:
         attempts.append(currString)
@@ -72,40 +74,46 @@ def boggleSolver(currString, coord):
     y = coord[0]
     adjacents = adjacentList(coord)
     if [y-1, x] in usedCoords:
+        print("[" + str(y-1) + "," + str(x) + "] should be in " + str(usedCoords))
         adjacents[0] = 0
     if [y+1, x] in usedCoords:
+        print("[" + str(y+1) + "," + str(x) + "] should be in " + str(usedCoords))
         adjacents[1] = 0
     if [y, x-1] in usedCoords:
+        print("[" + str(y) + "," + str(x-1) + "] should be in " + str(usedCoords))
         adjacents[2] = 0
     if [y, x+1] in usedCoords:
+        print("[" + str(y-1) + "," + str(x+1) + "] should be in " + str(usedCoords))
         adjacents[3] = 0
-    for i in range(0, 3):
+    for i in range(0, 4):
         if adjacents[i] != 0:
             newCoords = []
             if i == 0:
                 newCoords.append(y - 1)
                 newCoords.append(x)
+                print("checking up @ " + str(newCoords))
             if i == 1:
                 newCoords.append(y + 1)
                 newCoords.append(x)
+                print("checking down @ " + str(newCoords))
             if i == 2:
                 newCoords.append(y)
                 newCoords.append(x - 1)
+                print("checking left @ " + str(newCoords))
             if i == 3:
                 newCoords.append(y)
                 newCoords.append(x + 1)
+                print("checking right @ " + str(newCoords))
             newString = currString + adjacents[i]
             if checker(newString):
                 boggleSolver(newString, newCoords)  # If checker, generate new coords to give bogglesolver.
-            else:
-                usedCoords.pop()
-                return
     return
 
 
 for y in range(0, 4):
     for x in range(0, 4):
         usedCoords = []
+        print("\n\nNEW START POINT = [" + str(y) + ", " + str(x) + "]:" + str(grid[y][x]))
         boggleSolver(grid[y][x], [y, x])
 
 solutions = []
@@ -116,4 +124,4 @@ for attempt in attempts:
 if solutions:
     input("\nSolutions found:\n" + str(solutions))
 else:
-    input("No solutions found.")
+    input("\n\nNo solutions found.")
