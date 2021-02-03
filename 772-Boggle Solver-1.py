@@ -65,25 +65,21 @@ def checker(candidate):  # Checks if a given move will produce a part/whole of a
             return True
     return False
 
-def boggleSolver(currString, coord):
+def boggleSolver(currString, coord, currUsedCoords):
     print("Testing with (" + currString + ") at " + str(coord))
-    usedCoords.append(coord)
+    currUsedCoords.append(coord)
     if currString in dictionary:
         attempts.append(currString)
     x = coord[1]
     y = coord[0]
     adjacents = adjacentList(coord)
-    if [y-1, x] in usedCoords:
-        print("[" + str(y-1) + "," + str(x) + "] should be in " + str(usedCoords))
+    if [y-1, x] in currUsedCoords:
         adjacents[0] = 0
-    if [y+1, x] in usedCoords:
-        print("[" + str(y+1) + "," + str(x) + "] should be in " + str(usedCoords))
+    if [y+1, x] in currUsedCoords:
         adjacents[1] = 0
-    if [y, x-1] in usedCoords:
-        print("[" + str(y) + "," + str(x-1) + "] should be in " + str(usedCoords))
+    if [y, x-1] in currUsedCoords:
         adjacents[2] = 0
-    if [y, x+1] in usedCoords:
-        print("[" + str(y-1) + "," + str(x+1) + "] should be in " + str(usedCoords))
+    if [y, x+1] in currUsedCoords:
         adjacents[3] = 0
     for i in range(0, 4):
         if adjacents[i] != 0:
@@ -106,7 +102,7 @@ def boggleSolver(currString, coord):
                 print("checking right @ " + str(newCoords))
             newString = currString + adjacents[i]
             if checker(newString):
-                boggleSolver(newString, newCoords)  # If checker, generate new coords to give bogglesolver.
+                boggleSolver(newString, newCoords, currUsedCoords)  # If checker, generate new coords to give bogglesolver.
     return
 
 
@@ -114,7 +110,7 @@ for y in range(0, 4):
     for x in range(0, 4):
         usedCoords = []
         print("\n\nNEW START POINT = [" + str(y) + ", " + str(x) + "]:" + str(grid[y][x]))
-        boggleSolver(grid[y][x], [y, x])
+        boggleSolver(grid[y][x], [y, x], usedCoords)
 
 solutions = []
 for attempt in attempts:
